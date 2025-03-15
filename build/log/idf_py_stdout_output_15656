@@ -1,0 +1,138 @@
+[0;32mI (101) esp_image: segment 1: paddr=0002db38 vaddr=3fc95d00 sizeESP-ROM:esp32s3-20210327[0m
+Build:Mar 27 2021
+rst:0x15 (USB_UART_CHIP_RESET),boot:0x2b (SPI_FAST_FLASH_BOOT)
+Saved PC:0x420109d7
+SPIWP:0xee
+mode:DIO, clock div:1
+load:0x3fce2810,len:0x15a0
+load:0x403c8700,len:0x4
+load:0x403c8704,len:0xd20
+load:0x403cb700,len:0x2ee4
+entry 0x403c8928
+[0;32mI (18) boot: ESP-IDF v5.4 2nd stage bootloader[0m
+[0;32mI (18) boot: compile time Mar 15 2025 15:26:34[0m
+[0;32mI (18) boot: Multicore bootloader[0m
+[0;32mI (19) boot: chip revision: v0.2[0m
+[0;32mI (21) boot: efuse block revision: v1.3[0m
+[0;32mI (25) boot.esp32s3: Boot SPI Speed : 80MHz[0m
+[0;32mI (28) boot.esp32s3: SPI Mode       : DIO[0m
+[0;32mI (32) boot.esp32s3: SPI Flash Size : 2MB[0m
+[0;32mI (36) boot: Enabling RNG early entropy source...[0m
+[0;32mI (40) boot: Partition Table:[0m
+[0;32mI (43) boot: ## Label            Usage          Type ST Offset   Length[0m
+[0;32mI (49) boot:  0 nvs              WiFi data        01 02 00009000 00006000[0m
+[0;32mI (56) boot:  1 phy_init         RF data          01 01 0000f000 00001000[0m
+[0;32mI (62) boot:  2 factory          factory app      00 00 00010000 00100000[0m
+[0;32mI (69) boot: End of partition table[0m
+[0;32mI (72) esp_image: segment 0: paddr=00010020 vaddr=3c070020 size=1db10h (121616) map[0m
+[0;32mI (101) esp_image: segment 1: paddr=0002db38 vaddr=3fc95d00 size=024e0h (  9440) load[0m
+[0;32mI (103) esp_image: segment 2: paddr=00030020 vaddr=42000020 size=60404h (394244) map[0m
+[0;32mI (174) esp_image: segment 3: paddr=0009042c vaddr=3fc981e0 size=0097ch (  2428) load[0m
+[0;32mI (175) esp_image: segment 4: paddr=00090db0 vaddr=40374000 size=11cb4h ( 72884) load[0m
+[0;32mI (194) esp_image: segment 5: paddr=000a2a6c vaddr=600fe100 size=0001ch (    28) load[0m
+[0;32mI (201) boot: Loaded app from partition at offset 0x10000[0m
+[0;32mI (201) boot: Disabling RNG early entropy source...[0m
+[0;32mI (212) cpu_start: Multicore app[0m
+[0;32mI (221) cpu_start: Pro cpu start user code[0m
+[0;32mI (221) cpu_start: cpu freq: 160000000 Hz[0m
+[0;32mI (221) app_init: Application information:[0m
+[0;32mI (221) app_init: Project name:     audio[0m
+[0;32mI (225) app_init: App version:      1[0m
+[0;32mI (228) app_init: Compile time:     Mar 15 2025 15:38:10[0m
+[0;32mI (233) app_init: ELF file SHA256:  5d0f45a43...[0m
+[0;32mI (238) app_init: ESP-IDF:          v5.4[0m
+[0;32mI (241) efuse_init: Min chip rev:     v0.0[0m
+[0;32mI (245) efuse_init: Max chip rev:     v0.99 [0m
+[0;32mI (249) efuse_init: Chip rev:         v0.2[0m
+[0;32mI (253) heap_init: Initializing. RAM available for dynamic allocation:[0m
+[0;32mI (259) heap_init: At 3FC99918 len 0004FDF8 (319 KiB): RAM[0m
+[0;32mI (264) heap_init: At 3FCE9710 len 00005724 (21 KiB): RAM[0m
+[0;32mI (269) heap_init: At 3FCF0000 len 00008000 (32 KiB): DRAM[0m
+[0;32mI (275) heap_init: At 600FE11C len 00001ECC (7 KiB): RTCRAM[0m
+[0;32mI (281) spi_flash: detected chip: gd[0m
+[0;32mI (283) spi_flash: flash io: dio[0m
+[0;33mW (286) spi_flash: Detected size(16384k) larger than the size in the binary image header(2048k). Using the size in the binary image header.[0m
+[0;32mI (299) sleep_gpio: Configure to isolate all GPIO pins in sleep state[0m
+[0;32mI (305) sleep_gpio: Enable automatic switching of GPIO sleep configuration[0m
+[0;32mI (312) main_task: Started on CPU0[0m
+[0;32mI (322) main_task: Calling app_main()[0m
+[0;33mW (322) i2c.master: Please check pull-up resistances whether be connected properly. Otherwise unexpected behavior would happen. For more detailed information, please read docs[0m
+[0;32mI (332) LVGL: Starting LVGL task[0m
+[0;33mW (332) ledc: GPIO 47 is not usable, maybe conflict with others[0m
+[0;32mI (342) gpio: GPIO[4]| InputEn: 0| OutputEn: 1| OpenDrain: 0| Pullup: 0| Pulldown: 0| Intr:0 [0m
+[0;32mI (352) gpio: GPIO[48]| InputEn: 0| OutputEn: 1| OpenDrain: 0| Pullup: 0| Pulldown: 0| Intr:0 [0m
+[0;32mI (362) ili9341: LCD panel create success, version: 1.2.0[0m
+[0;33mW (482) ili9341: The 36h command has been used and will be overwritten by external initialization sequence[0m
+[0;33mW (482) ili9341: The 3Ah command has been used and will be overwritten by external initialization sequence[0m
+[0;33mW (522) GT911: Unable to initialize the I2C address[0m
+[0;32mI (522) gpio: GPIO[3]| InputEn: 1| OutputEn: 0| OpenDrain: 0| Pullup: 0| Pulldown: 0| Intr:2 [0m
+[0;32mI (522) GT911: TouchPad_ID:0x39,0x31,0x31[0m
+[0;32mI (532) GT911: TouchPad_Config_Version:65[0m
+[0;32mI (532) ESP-BOX-3: Setting LCD backlight: 50%[0m
+[0;32mI (542) [HERE]: here[0m
+[0;32mI (582) [NEW]: here0[0m
+[0;32mI (2582) [NEW]: here1[0m
+[0;32mI (2582) [NEW]: Pull ups 1[0m
+[0;32mI (2582) [NEW]: here2[0m
+[0;32mI (4582) [NEW]: here3[0m
+[0;32mI (7582) [HERE]: here2[0m
+[0;32mI (7582) [SENSOR READING]: 23.118299 46.338978 968.490356[0m
+[0;32mI (9582) [SENSOR READING]: 23.226463 47.376213 968.484741[0m
+[0;32mI (11582) [SENSOR READING]: 23.262411 47.518299 968.516541[0m
+[0;32mI (13582) [SENSOR READING]: 23.340933 58.052498 968.556946[0m
+[0;32mI (15582) [SENSOR READING]: 23.474640 62.242928 968.541016[0m
+[0;32mI (17582) [SENSOR READING]: 23.487568 56.325459 968.548340[0m
+[0;32mI (19582) [SENSOR READING]: 23.493876 53.218582 968.587585[0m
+[0;32mI (21582) [SENSOR READING]: 23.460133 51.278557 968.583618[0m
+[0;32mI (23582) [SENSOR READING]: 23.432068 49.988400 968.576294[0m
+[0;32mI (25582) [SENSOR READING]: 23.405579 49.286354 968.541199[0m
+[0;32mI (27582) [SENSOR READING]: 23.390127 48.550514 968.544067[0m
+[0;32mI (29582) [SENSOR READING]: 23.374674 47.871162 968.550415[0m
+[0;32mI (31582) [SENSOR READING]: 23.360483 47.429462 968.549805[0m
+[0;32mI (33582) [SENSOR READING]: 23.351025 47.242527 968.546082[0m
+[0;32mI (35582) [SENSOR READING]: 23.343771 47.270702 968.556152[0m
+[0;32mI (37582) [SENSOR READING]: 23.343456 47.989426 968.580078[0m
+[0;32mI (39582) [SENSOR READING]: 23.338095 47.644135 968.587830[0m
+[0;32mI (41582) [SENSOR READING]: 23.332418 47.440296 968.598206[0m
+[0;32mI (43582) [SENSOR READING]: 23.330841 47.259159 968.608093[0m
+[0;32mI (45582) [SENSOR READING]: 23.325481 46.840229 968.614075[0m
+[0;32mI (47582) [SENSOR READING]: 23.320435 46.602406 968.615112[0m
+[0;32mI (49582) [SENSOR READING]: 23.313498 46.489086 968.592468[0m
+[0;32mI (51582) [SENSOR READING]: 23.310974 46.477726 968.595642[0m
+[0;32mI (53582) [SENSOR READING]: 23.305614 46.426697 968.587341[0m
+[0;32mI (55582) [SENSOR READING]: 23.307507 46.472012 968.607849[0m
+[0;32mI (57582) [SENSOR READING]: 23.306561 46.488979 968.620361[0m
+[0;32mI (59582) [SENSOR READING]: 23.305929 46.511612 968.615967[0m
+[0;32mI (61582) [SENSOR READING]: 23.300884 46.432285 968.624023[0m
+[0;32mI (63582) [SENSOR READING]: 23.295208 46.375595 968.669739[0m
+[0;32mI (65582) [SENSOR READING]: 23.295523 46.369938 968.668579[0m
+[0;32mI (67582) [SENSOR READING]: 23.293947 46.403881 968.652161[0m
+[0;32mI (69582) [SENSOR READING]: 23.293631 46.386890 968.609558[0m
+[0;32mI (71582) [SENSOR READING]: 23.291424 46.330254 968.571228[0m
+[0;32mI (73582) [SENSOR READING]: 23.290163 46.318909 968.556885[0m
+[0;32mI (75582) [SENSOR READING]: 23.289217 46.313236 968.567688[0m
+[0;32mI (77582) [SENSOR READING]: 23.286062 46.466026 968.566467[0m
+[0;32mI (79582) [SENSOR READING]: 23.289846 47.190556 968.577637[0m
+[0;32mI (81582) [SENSOR READING]: 23.292055 47.224548 968.584412[0m
+[0;32mI (83582) [SENSOR READING]: 23.288900 46.850964 968.597168[0m
+[0;32mI (85582) [SENSOR READING]: 23.288900 46.647202 968.612915[0m
+[0;32mI (87582) [SENSOR READING]: 23.287640 46.562275 968.602112[0m
+[0;32mI (89582) [SENSOR READING]: 23.287954 46.522659 968.597473[0m
+[0;32mI (91582) [SENSOR READING]: 23.289217 46.466072 968.600952[0m
+[0;32mI (93582) [SENSOR READING]: 23.283541 46.420704 968.592346[0m
+[0;32mI (95582) [SENSOR READING]: 23.281649 46.364071 968.558167[0m
+[0;32mI (97582) [SENSOR READING]: 23.280071 46.335739 968.550232[0m
+[0;32mI (99582) [SENSOR READING]: 23.281017 46.324432 968.546448[0m
+[0;32mI (101582) [SENSOR READING]: 23.281017 46.307453 968.544739[0m
+[0;32mI (103582) [SENSOR READING]: 23.283541 46.290508 968.578369[0m
+[0;32mI (105582) [SENSOR READING]: 23.281963 46.284824 968.568970[0m
+[0;32mI (107582) [SENSOR READING]: 23.280703 46.262161 968.567200[0m
+[0;32mI (109582) [SENSOR READING]: 23.280703 46.284805 968.577698[0m
+[0;32mI (111582) [SENSOR READING]: 23.281963 46.511246 968.584717[0m
+[0;32mI (113582) [SENSOR READING]: 23.281332 46.398029 968.583862[0m
+[0;32mI (115582) [SENSOR READING]: 23.281332 46.290474 968.540039[0m
+[0;32mI (117582) [SENSOR READING]: 23.278494 46.228165 968.560120[0m
+[0;32mI (119582) [SENSOR READING]: 23.280386 46.205547 968.554321[0m
+[0;32mI (121582) [SENSOR READING]: 23.277233 46.194183 968.535583[0m
+[0;32mI (123582) [SENSOR READING]: 23.276287 46.228134 968.563904[0m
+[0;32mI (125582) [SENSOR READING]: 23.276287 46.228134 968.565613[0m
