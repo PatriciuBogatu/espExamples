@@ -1,0 +1,37 @@
+menu "Application settings"
+
+    choice PROV_METHOD
+        prompt "Provisioning method"
+        default PROV_METHOD_SOFTAP
+        help
+            Provisioning method to add a WiFi network
+        config PROV_METHOD_SOFTAP
+            bool "softap"
+        config PROV_METHOD_BLE
+            bool "ble"
+    endchoice
+    
+    config PROV_METHOD
+        int
+        default 1 if PROV_METHOD_BLE
+        default 0
+
+    config MQTT_BROKER_IP
+        string "IP of the MQTT broker to connect to"
+        default "192.168.203.200"
+        help
+            The local network IP of the machine where you run MQTT broker
+
+    config MQTT_PORT
+        int "Port of the MQTT broker in use"
+        default 8089
+        help
+            In general, port 1883 is for plaintext MQTT connections (no encryption).
+
+    config MQTT_CLIENT_IDENTIFIER
+        string "The MQTT client identifier used in this example"
+        default "bme-0"
+        help
+            The MQTT client identifier used in this example. Each client identifier must be unique.
+    
+endmenu

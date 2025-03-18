@@ -1,0 +1,8 @@
+services:
+  mosquitto:
+    image: eclipse-mosquitto
+    network_mode: bridge  # Direct host access
+    volumes:
+      - ./mosquitto.conf:/mosquitto/config/mosquitto.conf
+    ports:
+      - "8084:1883"  # Use standard port

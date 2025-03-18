@@ -10,6 +10,13 @@
 #include "ui.h"
 #include "esp_err.h"
 #include "esp_log.h"
+#include <string>
+#include "json.hpp"
+#include "sdkconfig.h"
+#include <stdio.h>
+#include <stdlib.h>  // For rand() and srand()
+#include <time.h>
+
 
 static const char *TAG = "AppSensor";
 
@@ -42,6 +49,7 @@ void avgClickedHandler(lv_event_t *e) {
 
 namespace app {
 
+
     struct SensorReading {
         float temperature;
         float pressure;
@@ -55,7 +63,22 @@ namespace app {
         // i2c_master_bus_handle_t i2c_handle;
         // bme280_handle_t bme280_handle = NULL;
 
+        std::string m_sensor_name;
+        nlohmann::json readings;
+        bool m_enabled;
+
+        bool isMock;
+
     public:
+
+        AppSensor(bool isMock) : m_sensor_name(CONFIG_MQTT_CLIENT_IDENTIFIER)
+        {
+            readings["temparature"] = 0.0;
+            readings["humidity"] = 0.0;
+            readings["pressure"] = 0.0;
+            this->isMock = isMock;
+        }
+
         void init(void) {
             // const i2c_master_bus_config_t i2c_config = {
             //     .i2c_port = 0,
@@ -79,24 +102,65 @@ namespace app {
             // // Initialize BME280
             // bme280_default_init(bme280_handle);
 
-
-            BME280_i2c_master_init();
-            initializeBME280();
+            
+            if(!isMock){
+                BME280_i2c_master_init();
+                initializeBME280();
+            }
         }
 
         SensorReading read(void) { 
             SensorReading sensorReading;
-            struct bme280_data data = BME280_I2C_read_data();
-            
-            sensorReading.humidity = data.humidity;
-            sensorReading.temperature = data.temperature;
-            sensorReading.pressure = data.pressure;
             char buffer[50];
+
+            if(isMock){
+                srand(time(NULL));
+
+                // Generate a random number
+                int random_number = rand() % 30;
+                sensorReading.humidity = random_number;
+                sensorReading.temperature = random_number + 1;
+            }else{
+                struct bme280_data data = BME280_I2C_read_data();
+                sensorReading.humidity = data.humidity;
+                sensorReading.temperature = data.temperature;
+                sensorReading.pressure = data.pressure;
+            }
+            
             sprintf(buffer, "Hum: %.3f Temp: %.3f", sensorReading.humidity, sensorReading.temperature); 
+            lvgl_port_lock(0);
             lv_label_set_text(ui_sensorLabel, buffer);
+            lvgl_port_unlock();
             temperatures.push_back(sensorReading.temperature);
             return sensorReading;
         }
+
+        std::string getName(void) const { return m_sensor_name; }
+        
+        std::string getReadingsMQTT(void){ 
+            
+            SensorReading currentReading = read();
+            readings["temparature"] = currentReading.temperature;
+            readings["humidity"] = currentReading.humidity;
+            readings["pressure"] = currentReading.pressure;
+
+            return readings.dump(); 
+        
+        }
+
+
+
+
+        // void setState(std::string new_state)
+        // {
+        //     nlohmann::json val = nlohmann::json::parse(new_state, nullptr, false);
+        //     if (!val.is_discarded())
+        //     {
+        //         readings.merge_patch(val);
+        //         m_enabled = m_state["enabled"].get<bool>();
+        //         handleNewState();
+        //     }
+        // }
 
     };
 }
