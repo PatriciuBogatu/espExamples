@@ -11,6 +11,8 @@
 #include "sensor/SensorApp.hpp"
 #include "AppWifi.hpp"
 #include "AppMqtt.hpp"
+#include "HttpServer.hpp"
+#include "HttpClient.hpp"
 
 
 
@@ -19,6 +21,8 @@ namespace
     app::AppWifi app_wifi;
     app::AppSensor app_sensor{true};
     app::AppMqtt app_mqtt{&app_sensor};
+    app::AppRestServer app_http_server{&app_sensor};
+    app::AppRestClient app_rest_client;
 }
 
 
@@ -60,11 +64,13 @@ extern "C" void app_main(void)
     {
         ESP_LOGI(TAG, "wifi connected");
         app_mqtt.start();
+        app_rest_client.start();
     };
 
     auto wifi_disconnected = []()
     {
         ESP_LOGW(TAG, "wifi disconnected");
+        app_rest_client.pause();
     };
 
     auto mqtt_cb = [](app::MqttEventData_t event)
@@ -91,8 +97,10 @@ extern "C" void app_main(void)
     app_sensor.init();
 
     app_mqtt.init(mqtt_cb);
+    app_rest_client.init();
     app_wifi.init(wifi_connected, wifi_disconnected);
     app_wifi.connect();
+    app_http_server.start(); // no need to init - this is esp's own resource
 
 //     while(true) {
 //         app::SensorReading reading = sensor.read();

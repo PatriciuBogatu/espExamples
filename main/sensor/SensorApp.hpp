@@ -56,6 +56,9 @@ namespace app {
         float humidity;
     };
 
+
+    NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(SensorReading, temperature, pressure, humidity);
+
     class AppSensor {
     private:
         // i2c_bus_handle_t i2c_bus_ = NULL;
@@ -147,8 +150,6 @@ namespace app {
             return readings.dump(); 
         
         }
-
-
 
 
         // void setState(std::string new_state)

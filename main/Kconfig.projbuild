@@ -18,7 +18,7 @@ menu "Application settings"
 
     config MQTT_BROKER_IP
         string "IP of the MQTT broker to connect to"
-        default "192.168.203.200"
+        default "192.168.236.200"
         help
             The local network IP of the machine where you run MQTT broker
 
@@ -33,5 +33,13 @@ menu "Application settings"
         default "bme-0"
         help
             The MQTT client identifier used in this example. Each client identifier must be unique.
+
+    config REST_SERVER_IP
+        string "The IP of the REST server."
+        default "192.168.236.200"
+    
+    config REST_SERVER_PORT
+        string "The port of the REST server."
+        default 5000
     
 endmenu
