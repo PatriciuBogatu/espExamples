@@ -12,7 +12,7 @@
 #include "wifi_provisioning/scheme_softap.h"
 #include "nvs_flash.h"
 #include "qrcode.h"
-#include "json.hpp"
+#include "http/json.hpp"
 
 #define PROV_SERVICE_NAME "patriciu"
 #define PROV_POP "bogatu"
