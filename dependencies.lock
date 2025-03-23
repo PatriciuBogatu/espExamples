@@ -13,6 +13,16 @@ dependencies:
       registry_url: https://components.espressif.com
       type: service
     version: 3.5.0
+  espressif/cbor:
+    component_hash: 440f4ee4504841cc9b4f3a8ef755776a612ac9dace355514c68b999868f990ff
+    dependencies:
+    - name: idf
+      require: private
+      version: '>=4.3'
+    source:
+      registry_url: https://components.espressif.com/
+      type: service
+    version: 0.6.0~1
   espressif/cmake_utilities:
     component_hash: 351350613ceafba240b761b4ea991e0f231ac7a9f59a9ee901f751bddc0bb18f
     dependencies:
@@ -63,6 +73,13 @@ dependencies:
     targets:
     - esp32s3
     version: 2.0.1
+  espressif/esp-serial-flasher:
+    component_hash: dcc42a16712a1a636509cf0bf90e14032d7f2141784b533613b267b6aa318d52
+    dependencies: []
+    source:
+      registry_url: https://components.espressif.com
+      type: service
+    version: 0.0.11
   espressif/esp_codec_dev:
     component_hash: 18c22e1411224ba6103c4aca1b01bc740af33926756e9e106370a477d52bcba1
     dependencies:
@@ -73,6 +90,44 @@ dependencies:
       registry_url: https://components.espressif.com
       type: service
     version: 1.3.4
+  espressif/esp_diag_data_store:
+    dependencies:
+    - name: idf
+      version: '>=4.1'
+    source:
+      path: C:\Users\Patriciu\Documents\esp32\esp-rainmaker\components\esp-insights\components\esp_diag_data_store
+      type: local
+    version: 1.0.2
+  espressif/esp_diagnostics:
+    dependencies:
+    - name: idf
+      version: '>=4.1'
+    - name: espressif/rmaker_common
+      version: ~1.4.0
+    source:
+      path: C:\Users\Patriciu\Documents\esp32\esp-rainmaker\components\esp-insights\components\esp_diagnostics
+      type: local
+    version: 1.2.1
+  espressif/esp_insights:
+    dependencies:
+    - name: idf
+      version: '>=4.1'
+    - name: espressif/rmaker_common
+      version: ~1.4.0
+    - name: espressif/esp_diag_data_store
+      override_path: ../esp_diag_data_store/
+      version: 1.0.2
+    - name: espressif/esp_diagnostics
+      override_path: ../esp_diagnostics/
+      version: 1.2.1
+    - name: espressif/cbor
+      rules:
+      - if: idf_version >=5.0
+      version: ~0.6
+    source:
+      path: C:\Users\Patriciu\Documents\esp32\esp-rainmaker\components\esp-insights\components\esp_insights
+      type: local
+    version: 1.2.4
   espressif/esp_lcd_ili9341:
     component_hash: 31f1b793aa2110dd2ae071c21ccbff0a4eb20d9a4ee40b6294c0dc0ad9552c4e
     dependencies:
@@ -98,7 +153,7 @@ dependencies:
       type: service
     version: 1.1.2
   espressif/esp_lcd_touch_gt911:
-    component_hash: f4c3a5b0970e6f8dd7810413cfb104d856f24c63420bb17f7a89ff37f68e30d8
+    component_hash: acc1c184358aa29ef72506f618c9c76a8cc2bf12af38a2bff3d44d84f3a08857
     dependencies:
     - name: espressif/esp_lcd_touch
       registry_url: https://components.espressif.com
@@ -110,7 +165,7 @@ dependencies:
     source:
       registry_url: https://components.espressif.com
       type: service
-    version: 1.1.2
+    version: 1.1.3
   espressif/esp_lcd_touch_tt21100:
     component_hash: 31894c5572927cb2dc65e5087572c4bd71d572fda3ef7e3320cb735af228c423
     dependencies:
@@ -139,6 +194,73 @@ dependencies:
       registry_url: https://components.espressif.com
       type: service
     version: 2.5.0
+  espressif/esp_rainmaker:
+    dependencies:
+    - name: espressif/mdns
+      rules:
+      - if: idf_version >=5.0
+      version: ^1.2.0
+    - name: espressif/esp_secure_cert_mgr
+      rules:
+      - if: idf_version >=4.3
+      version: ^2.2.1
+    - name: espressif/rmaker_common
+      override_path: ../rmaker_common/
+      version: ~1.4.6
+    - name: espressif/json_parser
+      override_path: ../json_parser
+      version: ~1.0.3
+    - name: espressif/json_generator
+      override_path: ../json_generator
+      version: ~1.1.1
+    - name: espressif/esp_schedule
+      override_path: ../esp_schedule/
+      version: ~1.2.0
+    - name: espressif/network_provisioning
+      rules:
+      - if: idf_version >= 5.1
+      version: ~1.0.0
+    - name: espressif/esp_rcp_update
+      rules:
+      - if: idf_version >= 5.1
+      version: ~1.2.0
+    source:
+      path: C:\Users\Patriciu\Documents\esp32\esp-rainmaker\components\esp_rainmaker
+      type: local
+    version: 1.5.2
+  espressif/esp_rcp_update:
+    component_hash: c10afbd54a17f27eed880e61262b161656e6d36ad63376c307f9273e99d0abcd
+    dependencies:
+    - name: espressif/esp-serial-flasher
+      registry_url: https://components.espressif.com
+      require: private
+      version: ~0.0.0
+    - name: idf
+      require: private
+      version: '>=5.0'
+    source:
+      registry_url: https://components.espressif.com/
+      type: service
+    version: 1.2.0
+  espressif/esp_schedule:
+    dependencies:
+    - name: espressif/rmaker_common
+      override_path: ../rmaker_common/
+      version: ~1.4.2
+    source:
+      path: C:\Users\Patriciu\Documents\esp32\esp-rainmaker\components\esp_schedule
+      type: local
+    version: 1.2.0
+  espressif/esp_secure_cert_mgr:
+    component_hash: 5d9175b416f751ba6a7cb35bdf092f0af85658ce06c4a592c7c541d8017ebeb9
+    dependencies:
+    - name: idf
+      require: private
+      version: '>=4.3'
+    source:
+      registry_url: https://components.espressif.com/
+      type: service
+    version: 2.5.0
   espressif/icm42670:
     component_hash: bc5b4c6ada234a77cd08d7b0957d21712ebf983bc3f495c6d0b948c9759a4ac2
     dependencies:
@@ -149,6 +271,42 @@ dependencies:
       registry_url: https://components.espressif.com
       type: service
     version: 2.0.1
+  espressif/json_generator:
+    dependencies: []
+    source:
+      path: C:\Users\Patriciu\Documents\esp32\esp-rainmaker\components\json_generator
+      type: local
+    version: 1.1.1
+  espressif/json_parser:
+    dependencies:
+    - name: espressif/jsmn
+      rules:
+      - if: idf_version >=5.0
+      version: ~1.1
+    source:
+      path: C:\Users\Patriciu\Documents\esp32\esp-rainmaker\components\json_parser
+      type: local
+    version: 1.0.3
+  espressif/mdns:
+    component_hash: 3ec0af5f6bce310512e90f482388d21cc7c0e99668172d2f895356165fc6f7c5
+    dependencies:
+    - name: idf
+      require: private
+      version: '>=5.0'
+    source:
+      registry_url: https://components.espressif.com/
+      type: service
+    version: 1.8.2
+  espressif/network_provisioning:
+    component_hash: 1c0f76f4a37c3f2101ae9735e9da901ef4469a07af9cc075fc8f08fee43281e4
+    dependencies:
+    - name: idf
+      require: private
+      version: '>=5.1'
+    source:
+      registry_url: https://components.espressif.com/
+      type: service
+    version: 1.0.3
   espressif/qrcode:
     component_hash: 3b493771bc5d6ad30cbf87c25bf784aada8a08c941504355b55d6b75518ed7bc
     dependencies: []
@@ -156,10 +314,22 @@ dependencies:
       registry_url: https://components.espressif.com/
       type: service
     version: 0.1.0~2
+  espressif/rmaker_common:
+    dependencies: []
+    source:
+      path: C:\Users\Patriciu\Documents\esp32\esp-rainmaker\components\rmaker_common
+      type: local
+    version: 1.4.6
   idf:
     source:
       type: idf
     version: 5.4.0
+  jsmn:
+    dependencies: []
+    source:
+      path: C:\Users\Patriciu\Documents\esp32\esp-rainmaker\components\jsmn
+      type: local
+    version: 1.1.0
   lvgl/lvgl:
     component_hash: 096c69af22eaf8a2b721e3913da91918c5e6bf1a762a113ec01f401aa61337a0
     dependencies: []
@@ -168,9 +338,23 @@ dependencies:
       type: service
     version: 9.2.2
 direct_dependencies:
+- espressif/cbor
 - espressif/esp-box-3
+- espressif/esp_diag_data_store
+- espressif/esp_diagnostics
+- espressif/esp_insights
+- espressif/esp_rainmaker
+- espressif/esp_rcp_update
+- espressif/esp_schedule
+- espressif/esp_secure_cert_mgr
+- espressif/jsmn
+- espressif/json_generator
+- espressif/json_parser
+- espressif/mdns
+- espressif/network_provisioning
 - espressif/qrcode
+- espressif/rmaker_common
 - idf
-manifest_hash: e12163600873176fa303d7213983f93d92615c7ecf8dee2282efe5a3323b5774
+manifest_hash: cf01e1d3afcf5ef154d459793cb12d3baf53f9cb7dcccb974b3c2ba5fa383c95
 target: esp32s3
 version: 2.0.0

@@ -13,18 +13,23 @@
 // #include "AppMqtt.hpp"
 // #include "http/HttpServer.hpp"
 // #include "http/HttpClient.hpp"
-#include "http/AppOTA.hpp"
+// #include "http/AppOTA.hpp"
+#include "http/rainmaker/ota/AppNode.hpp"
+#include "http/rainmaker/ota/AppDriver.hpp"
 
 
 
 namespace
 {
-    app::AppWifi app_wifi;
+    // app::AppWifi app_wifi;
     app::AppSensor app_sensor{true};
     // app::AppMqtt app_mqtt{&app_sensor};
     // app::AppRestServer app_http_server{&app_sensor};
     // app::AppRestClient app_rest_client;
-    app::AppOtaClient app_ota_client;
+    // app::AppOtaClient app_ota_client;
+
+    app::AppDriver app_driver;
+    app::AppNode app_node;
 }
 
 
@@ -62,24 +67,24 @@ extern "C" void app_main(void)
 
 
 
-    auto wifi_connected = [](esp_ip4_addr_t *ip)
-    {
-        ESP_LOGI(TAG, "wifi connected!");
-        // app_mqtt.start();
-        // app_rest_client.start();
-        app_ota_client.start();
-    };
+    // auto wifi_connected = [](esp_ip4_addr_t *ip)
+    // {
+    //     ESP_LOGI(TAG, "wifi connected!");
+    //     // app_mqtt.start();
+    //     // app_rest_client.start();
+    //     app_ota_client.start();
+    // };
 
-    auto wifi_disconnected = []()
-    {
-        ESP_LOGW(TAG, "wifi disconnected");
-        // app_rest_client.pause();
-        if(!app_ota_client.isOtaDone()){
-            app_ota_client.pause();
-        }
+    // auto wifi_disconnected = []()
+    // {
+    //     ESP_LOGW(TAG, "wifi disconnected");
+    //     // app_rest_client.pause();
+    //     if(!app_ota_client.isOtaDone()){
+    //         app_ota_client.pause();
+    //     }
 
-        // if the ota is done then there is nothing to pause because the underlying FreeRtos task is deleted
-    };
+    //     // if the ota is done then there is nothing to pause because the underlying FreeRtos task is deleted
+    // };
 
     // auto mqtt_cb = [](app::MqttEventData_t event)
     // {
@@ -106,10 +111,20 @@ extern "C" void app_main(void)
 
     // app_mqtt.init(mqtt_cb);
     // app_rest_client.init();
-    app_ota_client.init();
-    app_wifi.init(wifi_connected, wifi_disconnected);
-    app_wifi.connect();
+    // app_ota_client.init();
+    // app_wifi.init(wifi_connected, wifi_disconnected);
+    // app_wifi.connect();
     // app_http_server.start(); // no need to init - this is esp's own resource
+
+    // Initializez the underlying flash/NVS access and Wifi
+    app_driver.init();
+    // Configures Rainmaker
+    app_node.init();
+
+    // Will allow Rainmaker task to monitor Wifi events and react to them
+    app_node.start();
+    // Starting Wifi
+    app_driver.start();
 
     while(1){
 
@@ -117,10 +132,10 @@ extern "C" void app_main(void)
 
         app::SensorReading reading = app_sensor.read();
         ESP_LOGI("[SENSOR READING]", "%f %f %f", reading.temperature, reading.humidity, reading.pressure);
-        if(app_ota_client.isOtaDone()){
-            // reboot, teh bootloader will find the new firmware and activate it
-            esp_restart();
-        }
+        // if(app_ota_client.isOtaDone()){
+        //     // reboot, teh bootloader will find the new firmware and activate it
+        //     esp_restart();
+        // }
         
     }
 //     while(true) {

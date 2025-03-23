@@ -169,6 +169,7 @@ part of the firmware from the remote server.*/
         if (esp_https_ota_get_img_desc(https_ota_handle, &app_desc) != ESP_OK ||
             memcmp(app_desc.version, running_app_info.version, sizeof(app_desc.version)) == 0)
         {
+                // is the image header an actual http header? so the ota lib finds out the version from the header instead from the initial downloaded bin chunk?
                 ESP_LOGI("AppOTA", "Target version is %s", app_desc.version);
             esp_https_ota_abort(https_ota_handle);
             return;

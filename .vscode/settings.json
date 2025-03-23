@@ -90,5 +90,6 @@
         "forward_list": "cpp",
         "ranges": "cpp",
         "valarray": "cpp"
-    }
+    },
+    "idf.flashType": "UART"
 }
