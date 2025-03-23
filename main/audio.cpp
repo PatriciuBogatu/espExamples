@@ -22,7 +22,6 @@
 namespace
 {
     // app::AppWifi app_wifi;
-    app::AppSensor app_sensor{true};
     // app::AppMqtt app_mqtt{&app_sensor};
     // app::AppRestServer app_http_server{&app_sensor};
     // app::AppRestClient app_rest_client;
@@ -30,6 +29,8 @@ namespace
 
     app::AppDriver app_driver;
     app::AppNode app_node;
+
+    app::AppSensor app_sensor{true, &app_node};
 }
 
 

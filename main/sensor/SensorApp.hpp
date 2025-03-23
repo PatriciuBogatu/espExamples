@@ -16,6 +16,7 @@
 #include <stdio.h>
 #include <stdlib.h>  // For rand() and srand()
 #include <time.h>
+#include "http/rainmaker/ota/AppNode.hpp"
 
 
 static const char *TAG = "AppSensor";
@@ -72,14 +73,19 @@ namespace app {
 
         bool isMock;
 
+        AppNode* node;
+
+
+
     public:
 
-        AppSensor(bool isMock) : m_sensor_name(CONFIG_MQTT_CLIENT_IDENTIFIER)
+        AppSensor(bool isMock, AppNode *rmNode) : m_sensor_name(CONFIG_MQTT_CLIENT_IDENTIFIER)
         {
             readings["temparature"] = 0.0;
             readings["humidity"] = 0.0;
             readings["pressure"] = 0.0;
             this->isMock = isMock;
+            this->node = rmNode;
         }
 
         void init(void) {
@@ -130,11 +136,14 @@ namespace app {
                 sensorReading.pressure = data.pressure;
             }
             
-            sprintf(buffer, "Hum: %.3f Temp: %.3f", sensorReading.humidity, sensorReading.temperature); 
-            lvgl_port_lock(0);
-            lv_label_set_text(ui_sensorLabel, buffer);
-            lvgl_port_unlock();
-            temperatures.push_back(sensorReading.temperature);
+            if(node->m_connected){
+                sprintf(buffer, "Hum: %.3f Temp: %.3f", sensorReading.humidity, sensorReading.temperature); 
+                lvgl_port_lock(0);
+                lv_label_set_text(ui_sensorLabel, buffer);
+                lvgl_port_unlock();
+                temperatures.push_back(sensorReading.temperature);   
+                node->update(sensorReading.temperature);
+            }
             return sensorReading;
         }
 

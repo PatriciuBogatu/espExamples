@@ -11,6 +11,8 @@
 
 #define FILE_SERVER_URL "https://" CONFIG_REST_SERVER_IP ":" CONFIG_REST_SERVER_PORT
 
+
+// this was part of the example with a local server
 // marks the start of the address in the memory of the tls certificate of the server
 // we instructed the build system to store the tls cert in the firmware binary
 extern const uint8_t server_cert_pem_start[] asm("_binary_cert_pem_start");

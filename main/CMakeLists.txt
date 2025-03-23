@@ -20,7 +20,7 @@ idf_component_register(
       "ui/ui_events.c"
       "ui/components/ui_comp_hook.c"
       "ui/screens/ui_Screen1.c"
-    REQUIRES esp_wifi wifi_provisioning nvs_flash mqtt esp_http_server esp_http_client app_update esp_https_ota esp_rainmaker app_network
+    REQUIRES esp_wifi wifi_provisioning nvs_flash mqtt esp_http_server esp_http_client app_update esp_https_ota esp_rainmaker app_network app_insights
     PRIV_REQUIRES spi_flash
     INCLUDE_DIRS
        "." "ui"
