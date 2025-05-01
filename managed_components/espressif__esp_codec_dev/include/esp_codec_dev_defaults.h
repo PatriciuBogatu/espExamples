@@ -50,9 +50,8 @@ extern "C" {
  * @brief Codec I2C configuration
  */
 typedef struct {
-    uint8_t port;       /*!< I2C port, this port need pre-installed by other modules */
-    uint8_t addr;       /*!< I2C address, default address can be gotten from codec head files */
-    void   *bus_handle; /*!< I2C Master bus handle (for IDFv5.3 or higher version) */
+    uint8_t port; /*!< I2C port, this port need pre-installed by other modules */
+    uint8_t addr; /*!< I2C address, default address can be gotten from codec head files */
 } audio_codec_i2c_cfg_t;
 
 /**

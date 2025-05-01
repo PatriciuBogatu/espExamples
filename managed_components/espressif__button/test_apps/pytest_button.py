@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2022-2024 Espressif Systems (Shanghai) CO LTD
+# SPDX-FileCopyrightText: 2022-2023 Espressif Systems (Shanghai) CO LTD
 # SPDX-License-Identifier: Apache-2.0
 
 '''
@@ -17,13 +17,7 @@ from pytest_embedded import Dut
 
 @pytest.mark.target('esp32s3')
 @pytest.mark.env('button')
-@pytest.mark.parametrize(
-    'config',
-    [
-        'defaults',
-    ],
-)
-def test_button(dut: Dut)-> None:
+def test_usb_stream(dut: Dut)-> None:
     dut.expect_exact('Press ENTER to see the list of tests.')
     dut.write('[auto]')
-    dut.expect_unity_test_output(timeout = 300)
+    dut.expect_unity_test_output(timeout = 60)

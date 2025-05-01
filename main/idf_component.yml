@@ -2,7 +2,7 @@
 dependencies:
   ## Required IDF version
   idf:
-    version: '>=4.1.0'
+    version: '5.0.8'
   # # Put list of dependencies here
   # # For components maintained by Espressif:
   # component: "~1.0.0"
@@ -14,5 +14,7 @@ dependencies:
   #   # `public` flag doesn't have an effect dependencies of the `main` component.
   #   # All dependencies of `main` are public by default.
   #   public: true
-  espressif/esp-box-3: ^2.0.1
-  espressif/qrcode: ^0.1.0
+  espressif/esp-box-3: ^1.0.0
+  espressif/button: "3.0.0"  # Force v3.0.0 (compatible with IDF v5.0.8)
+  espressif/qrcode: ^0.1.0~2
+  espressif/esp-sr: "^2.0.0"

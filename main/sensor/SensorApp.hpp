@@ -1,9 +1,9 @@
 #pragma once
 
 #include "esp_log.h"
-#include "bme280-new-i2c.hpp"
-#include "bsp/esp-bsp.h"  // For BSP I2C handle
-#include "driver/i2c_master.h"
+// #include "bme280-new-i2c.hpp"
+#include "bsp/esp-bsp.h" // For BSP I2C handle
+// #include "driver/i2c_master.h"
 #include "driver/gpio.h"
 #include <vector>
 #include <cstdio>
@@ -14,53 +14,53 @@
 #include "http/json.hpp"
 #include "sdkconfig.h"
 #include <stdio.h>
-#include <stdlib.h>  // For rand() and srand()
+#include <stdlib.h> // For rand() and srand()
 #include <time.h>
-#include "http/rainmaker/ota/AppNode.hpp"
-
+// #include "http/rainmaker/ota/AppNode.hpp"
 
 static const char *TAG = "AppSensor";
 
 std::vector<double> temperatures;
 
-void avgClickedHandler(lv_event_t *e) {
+void avgClickedHandler(lv_event_t *e)
+{
     // lv_obj_t *btn = lv_event_get_target(e);
 
     // Example: Change button text on click
     // lv_label_set_text(lv_obj_get_child(btn, 0), "Clicked!");
-    
-    ESP_LOGI(TAG ,"Invoking avgClickedHandler");
+
+    ESP_LOGI(TAG, "Invoking avgClickedHandler");
 
     double avg = 0;
     int numbers = 0;
-    for (double num : temperatures) {
+    for (double num : temperatures)
+    {
         avg += num;
         numbers++;
     }
 
     avg /= numbers;
 
-
-    char buffer[20]; // Allocate enough space for the number
-    sprintf(buffer, "%f", avg);  // Convert number to string format
+    char buffer[20];            // Allocate enough space for the number
+    sprintf(buffer, "%f", avg); // Convert number to string format
 
     lv_label_set_text(ui_avgSensor, buffer);
 }
 
+namespace app
+{
 
-namespace app {
-
-
-    struct SensorReading {
+    struct SensorReading
+    {
         float temperature;
         float pressure;
         float humidity;
     };
 
-
     NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(SensorReading, temperature, pressure, humidity);
 
-    class AppSensor {
+    class AppSensor
+    {
     private:
         // i2c_bus_handle_t i2c_bus_ = NULL;
         // bme280_handle_t  bme280 = NULL;
@@ -73,22 +73,20 @@ namespace app {
 
         bool isMock;
 
-        AppNode* node;
-
-
+        // AppNode *node;
 
     public:
-
-        AppSensor(bool isMock, AppNode *rmNode) : m_sensor_name(CONFIG_MQTT_CLIENT_IDENTIFIER)
+        AppSensor(bool isMock) : m_sensor_name(CONFIG_MQTT_CLIENT_IDENTIFIER) // AppNode *rmNode
         {
             readings["temparature"] = 0.0;
             readings["humidity"] = 0.0;
             readings["pressure"] = 0.0;
             this->isMock = isMock;
-            this->node = rmNode;
+            // this->node = rmNode;
         }
 
-        void init(void) {
+        void init(void)
+        {
             // const i2c_master_bus_config_t i2c_config = {
             //     .i2c_port = 0,
             //     .sda_io_num = GPIO_NUM_38,
@@ -111,55 +109,59 @@ namespace app {
             // // Initialize BME280
             // bme280_default_init(bme280_handle);
 
-            
-            if(!isMock){
-                BME280_i2c_master_init();
-                initializeBME280();
+            if (!isMock)
+            {
+                // BME280_i2c_master_init();
+                // initializeBME280();
             }
         }
 
-        SensorReading read(void) { 
+        SensorReading read(void)
+        {
             SensorReading sensorReading;
             char buffer[50];
 
-            if(isMock){
+            if (isMock)
+            {
                 srand(time(NULL));
 
                 // Generate a random number
                 int random_number = rand() % 30;
                 sensorReading.humidity = random_number;
                 sensorReading.temperature = random_number + 1;
-            }else{
-                struct bme280_data data = BME280_I2C_read_data();
-                sensorReading.humidity = data.humidity;
-                sensorReading.temperature = data.temperature;
-                sensorReading.pressure = data.pressure;
             }
-            
-            if(node->m_connected){
-                sprintf(buffer, "Hum: %.3f Temp: %.3f", sensorReading.humidity, sensorReading.temperature); 
-                lvgl_port_lock(0);
-                lv_label_set_text(ui_sensorLabel, buffer);
-                lvgl_port_unlock();
-                temperatures.push_back(sensorReading.temperature);   
-                node->update(sensorReading.temperature);
+            else
+            {
+                // struct bme280_data data = BME280_I2C_read_data();
+                // sensorReading.humidity = data.humidity;
+                // sensorReading.temperature = data.temperature;
+                // sensorReading.pressure = data.pressure;
             }
+
+            // if (node->m_connected)
+            // {
+            //     sprintf(buffer, "Hum: %.3f Temp: %.3f", sensorReading.humidity, sensorReading.temperature);
+            //     lvgl_port_lock(0);
+            //     lv_label_set_text(ui_sensorLabel, buffer);
+            //     lvgl_port_unlock();
+            //     temperatures.push_back(sensorReading.temperature);
+            //     node->update(sensorReading.temperature);
+            // }
             return sensorReading;
         }
 
         std::string getName(void) const { return m_sensor_name; }
-        
-        std::string getReadingsMQTT(void){ 
-            
+
+        std::string getReadingsMQTT(void)
+        {
+
             SensorReading currentReading = read();
             readings["temparature"] = currentReading.temperature;
             readings["humidity"] = currentReading.humidity;
             readings["pressure"] = currentReading.pressure;
 
-            return readings.dump(); 
-        
+            return readings.dump();
         }
-
 
         // void setState(std::string new_state)
         // {
@@ -171,6 +173,5 @@ namespace app {
         //         handleNewState();
         //     }
         // }
-
     };
 }

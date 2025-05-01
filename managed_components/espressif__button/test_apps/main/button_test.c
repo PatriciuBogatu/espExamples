@@ -1,10 +1,9 @@
-/* SPDX-FileCopyrightText: 2022-2024 Espressif Systems (Shanghai) CO LTD
+/* SPDX-FileCopyrightText: 2022-2023 Espressif Systems (Shanghai) CO LTD
  *
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#include <stdio.h>
-#include <inttypes.h>
+#include "stdio.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "freertos/queue.h"
@@ -13,6 +12,9 @@
 #include "freertos/event_groups.h"
 #include "esp_idf_version.h"
 #include "esp_log.h"
+#if ESP_IDF_VERSION >= ESP_IDF_VERSION_VAL(5, 0, 0)
+#include "esp_adc/adc_cali.h"
+#endif
 #include "unity.h"
 #include "iot_button.h"
 #include "sdkconfig.h"
@@ -23,6 +25,12 @@ static const char *TAG = "BUTTON TEST";
 #define BUTTON_IO_NUM  0
 #define BUTTON_ACTIVE_LEVEL   0
 #define BUTTON_NUM 16
+
+#if ESP_IDF_VERSION >= ESP_IDF_VERSION_VAL(5, 0, 0)
+#define ADC_BUTTON_WIDTH SOC_ADC_RTC_MAX_BITWIDTH
+#else
+#define ADC_BUTTON_WIDTH ADC_WIDTH_MAX - 1
+#endif
 
 static size_t before_free_8bit;
 static size_t before_free_32bit;
@@ -47,7 +55,7 @@ static void button_press_down_cb(void *arg, void *data)
 static void button_press_up_cb(void *arg, void *data)
 {
     TEST_ASSERT_EQUAL_HEX(BUTTON_PRESS_UP, iot_button_get_event(arg));
-    ESP_LOGI(TAG, "BTN%d: BUTTON_PRESS_UP[%"PRIu32"]", get_btn_index((button_handle_t)arg), iot_button_get_ticks_time((button_handle_t)arg));
+    ESP_LOGI(TAG, "BTN%d: BUTTON_PRESS_UP[%d]", get_btn_index((button_handle_t)arg), iot_button_get_ticks_time((button_handle_t)arg));
 }
 
 static void button_press_repeat_cb(void *arg, void *data)
@@ -76,7 +84,7 @@ static void button_long_press_start_cb(void *arg, void *data)
 static void button_long_press_hold_cb(void *arg, void *data)
 {
     TEST_ASSERT_EQUAL_HEX(BUTTON_LONG_PRESS_HOLD, iot_button_get_event(arg));
-    ESP_LOGI(TAG, "BTN%d: BUTTON_LONG_PRESS_HOLD[%"PRIu32"],count is [%d]", get_btn_index((button_handle_t)arg), iot_button_get_ticks_time((button_handle_t)arg), iot_button_get_long_press_hold_cnt((button_handle_t)arg));
+    ESP_LOGI(TAG, "BTN%d: BUTTON_LONG_PRESS_HOLD[%d],count is [%d]", get_btn_index((button_handle_t)arg), iot_button_get_ticks_time((button_handle_t)arg), iot_button_get_long_press_hold_cnt((button_handle_t)arg));
 }
 
 static void button_press_repeat_done_cb(void *arg, void *data)
@@ -165,10 +173,6 @@ TEST_CASE("gpio button test", "[button][iot]")
     iot_button_register_cb(g_btns[0], BUTTON_LONG_PRESS_HOLD, button_long_press_hold_cb, NULL);
     iot_button_register_cb(g_btns[0], BUTTON_PRESS_REPEAT_DONE, button_press_repeat_done_cb, NULL);
 
-    uint8_t level = 0;
-    level = iot_button_get_key_level(g_btns[0]);
-    ESP_LOGI(TAG, "button level is %d", level);
-
     while (1) {
         vTaskDelay(pdMS_TO_TICKS(1000));
     }
@@ -176,111 +180,6 @@ TEST_CASE("gpio button test", "[button][iot]")
     iot_button_delete(g_btns[0]);
 }
 
-TEST_CASE("gpio button get event test", "[button][iot]")
-{
-    button_config_t cfg = {
-        .type = BUTTON_TYPE_GPIO,
-        .long_press_time = CONFIG_BUTTON_LONG_PRESS_TIME_MS,
-        .short_press_time = CONFIG_BUTTON_SHORT_PRESS_TIME_MS,
-        .gpio_button_config = {
-            .gpio_num = 0,
-            .active_level = 0,
-        },
-    };
-    g_btns[0] = iot_button_create(&cfg);
-    TEST_ASSERT_NOT_NULL(g_btns[0]);
-
-    uint8_t level = 0;
-    level = iot_button_get_key_level(g_btns[0]);
-    ESP_LOGI(TAG, "button level is %d", level);
-
-    while (1) {
-        button_event_t event = iot_button_get_event(g_btns[0]);
-        if (event != BUTTON_NONE_PRESS) {
-            ESP_LOGI(TAG, "event is %s", iot_button_get_event_str(event));
-        }
-        vTaskDelay(pdMS_TO_TICKS(1));
-    }
-
-    iot_button_delete(g_btns[0]);
-}
-
-TEST_CASE("gpio button test power save", "[button][iot][power save]")
-{
-    button_config_t cfg = {
-        .type = BUTTON_TYPE_GPIO,
-        .long_press_time = CONFIG_BUTTON_LONG_PRESS_TIME_MS,
-        .short_press_time = CONFIG_BUTTON_SHORT_PRESS_TIME_MS,
-        .gpio_button_config = {
-            .gpio_num = 0,
-            .active_level = 0,
-        },
-    };
-    g_btns[0] = iot_button_create(&cfg);
-    TEST_ASSERT_NOT_NULL(g_btns[0]);
-    iot_button_register_cb(g_btns[0], BUTTON_PRESS_DOWN, button_press_down_cb, NULL);
-    iot_button_register_cb(g_btns[0], BUTTON_PRESS_UP, button_press_up_cb, NULL);
-    iot_button_register_cb(g_btns[0], BUTTON_PRESS_REPEAT, button_press_repeat_cb, NULL);
-    iot_button_register_cb(g_btns[0], BUTTON_SINGLE_CLICK, button_single_click_cb, NULL);
-    iot_button_register_cb(g_btns[0], BUTTON_DOUBLE_CLICK, button_double_click_cb, NULL);
-    iot_button_register_cb(g_btns[0], BUTTON_LONG_PRESS_START, button_long_press_start_cb, NULL);
-    iot_button_register_cb(g_btns[0], BUTTON_LONG_PRESS_HOLD, button_long_press_hold_cb, NULL);
-    iot_button_register_cb(g_btns[0], BUTTON_PRESS_REPEAT_DONE, button_press_repeat_done_cb, NULL);
-
-    TEST_ASSERT_EQUAL(ESP_OK, iot_button_stop());
-    vTaskDelay(pdMS_TO_TICKS(1000));
-    TEST_ASSERT_EQUAL(ESP_OK, iot_button_resume());
-
-    while (1) {
-        vTaskDelay(pdMS_TO_TICKS(1000));
-    }
-
-    iot_button_delete(g_btns[0]);
-}
-
-TEST_CASE("matrix keyboard button test", "[button][matrix key]")
-{
-    int32_t row_gpio[4] = {4, 5, 6, 7};
-    int32_t col_gpio[4] = {3, 8, 16, 15};
-    button_config_t cfg = {
-        .type = BUTTON_TYPE_MATRIX,
-        .long_press_time = CONFIG_BUTTON_LONG_PRESS_TIME_MS,
-        .short_press_time = CONFIG_BUTTON_SHORT_PRESS_TIME_MS,
-        .matrix_button_config = {
-            .row_gpio_num = 0,
-            .col_gpio_num = 0,
-        }
-    };
-
-    for (int i = 0; i < 4; i++) {
-        cfg.matrix_button_config.row_gpio_num = row_gpio[i];
-        for (int j = 0; j < 4; j++) {
-            cfg.matrix_button_config.col_gpio_num = col_gpio[j];
-            g_btns[i * 4 + j] = iot_button_create(&cfg);
-            TEST_ASSERT_NOT_NULL(g_btns[i * 4 + j]);
-            iot_button_register_cb(g_btns[i * 4 + j], BUTTON_PRESS_DOWN, button_press_down_cb, NULL);
-            iot_button_register_cb(g_btns[i * 4 + j], BUTTON_PRESS_UP, button_press_up_cb, NULL);
-            iot_button_register_cb(g_btns[i * 4 + j], BUTTON_PRESS_REPEAT, button_press_repeat_cb, NULL);
-            iot_button_register_cb(g_btns[i * 4 + j], BUTTON_SINGLE_CLICK, button_single_click_cb, NULL);
-            iot_button_register_cb(g_btns[i * 4 + j], BUTTON_DOUBLE_CLICK, button_double_click_cb, NULL);
-            iot_button_register_cb(g_btns[i * 4 + j], BUTTON_LONG_PRESS_START, button_long_press_start_cb, NULL);
-            iot_button_register_cb(g_btns[i * 4 + j], BUTTON_LONG_PRESS_HOLD, button_long_press_hold_cb, NULL);
-            iot_button_register_cb(g_btns[i * 4 + j], BUTTON_PRESS_REPEAT_DONE, button_press_repeat_done_cb, NULL);
-        }
-    }
-
-    while (1) {
-        vTaskDelay(pdMS_TO_TICKS(1000));
-    }
-
-    for (int i = 0; i < 4; i++) {
-        for (int j = 0; j < 4; j++) {
-            iot_button_delete(g_btns[i * 4 + j]);
-        }
-    }
-}
-
-#if CONFIG_SOC_ADC_SUPPORTED
 #if ESP_IDF_VERSION < ESP_IDF_VERSION_VAL(5, 0, 0)
 TEST_CASE("adc button test", "[button][iot]")
 {
@@ -325,18 +224,8 @@ TEST_CASE("adc button test", "[button][iot]")
     }
 }
 #else
-
-#include "esp_adc/adc_cali.h"
-
 static esp_err_t adc_calibration_init(adc_unit_t unit, adc_atten_t atten, adc_cali_handle_t *out_handle)
 {
-
-#if ESP_IDF_VERSION >= ESP_IDF_VERSION_VAL(5, 0, 0)
-#define ADC_BUTTON_WIDTH SOC_ADC_RTC_MAX_BITWIDTH
-#else
-#define ADC_BUTTON_WIDTH ADC_WIDTH_MAX - 1
-#endif
-
     adc_cali_handle_t handle = NULL;
     esp_err_t ret = ESP_FAIL;
     bool calibrated = false;
@@ -392,8 +281,7 @@ TEST_CASE("adc button idf5 drive test", "[button][iot]")
     };
     esp_err_t ret = adc_oneshot_new_unit(&init_config, &adc1_handle);
     TEST_ASSERT_TRUE(ret == ESP_OK);
-    /*!< use atten 11db or 12db */
-    adc_calibration_init(ADC_UNIT_1, 3, &adc1_cali_handle);
+    adc_calibration_init(ADC_UNIT_1, ADC_ATTEN_DB_11, &adc1_cali_handle);
 
     /** ESP32-S3-Korvo board */
     const uint16_t vol[6] = {380, 820, 1180, 1570, 1980, 2410};
@@ -437,11 +325,22 @@ TEST_CASE("adc button idf5 drive test", "[button][iot]")
     }
 }
 #endif
-#endif // CONFIG_SOC_ADC_SUPPORTED
 
 #define GPIO_OUTPUT_IO_45 45
 static EventGroupHandle_t g_check = NULL;
 static SemaphoreHandle_t g_auto_check_pass = NULL;
+static const char* button_event_str[BUTTON_EVENT_MAX] = {
+    "BUTTON_PRESS_DOWN",
+    "BUTTON_PRESS_UP",
+    "BUTTON_PRESS_REPEAT",
+    "BUTTON_PRESS_REPEAT_DONE",
+    "BUTTON_SINGLE_CLICK",
+    "BUTTON_DOUBLE_CLICK",
+    "BUTTON_MULTIPLE_CLICK",
+    "BUTTON_LONG_PRESS_START",
+    "BUTTON_LONG_PRESS_HOLD",
+    "BUTTON_LONG_PRESS_UP"
+};
 
 static button_event_t state = BUTTON_PRESS_DOWN;
 
@@ -520,7 +419,7 @@ static void button_auto_check_cb_1(void *arg, void *data)
 static void button_auto_check_cb(void *arg, void *data)
 {
     if (iot_button_get_event(g_btns[0]) == state) {
-        ESP_LOGI(TAG, "Auto check: button event %s pass", iot_button_get_event_str(state));
+        ESP_LOGI(TAG, "Auto check: button event %s pass", button_event_str[state]);
         xEventGroupSetBits(g_check, BIT(0));
         if (++state >= BUTTON_EVENT_MAX) {
             xSemaphoreGive(g_auto_check_pass);
@@ -546,21 +445,35 @@ TEST_CASE("gpio button auto-test", "[button][iot][auto]")
     };
     g_btns[0] = iot_button_create(&cfg);
     TEST_ASSERT_NOT_NULL(g_btns[0]);
+    iot_button_register_cb(g_btns[0], BUTTON_PRESS_DOWN, button_auto_check_cb_1, NULL);
+    iot_button_register_cb(g_btns[0], BUTTON_PRESS_DOWN, button_auto_check_cb, NULL);
+    iot_button_register_cb(g_btns[0], BUTTON_PRESS_UP, button_auto_check_cb_1, NULL);
+    iot_button_register_cb(g_btns[0], BUTTON_PRESS_UP, button_auto_check_cb, NULL);
+    iot_button_register_cb(g_btns[0], BUTTON_PRESS_REPEAT, button_auto_check_cb_1, NULL);
+    iot_button_register_cb(g_btns[0], BUTTON_PRESS_REPEAT, button_auto_check_cb, NULL);
+    iot_button_register_cb(g_btns[0], BUTTON_SINGLE_CLICK, button_auto_check_cb_1, NULL);
+    iot_button_register_cb(g_btns[0], BUTTON_SINGLE_CLICK, button_auto_check_cb, NULL);
+    iot_button_register_cb(g_btns[0], BUTTON_DOUBLE_CLICK, button_auto_check_cb_1, NULL);
+    iot_button_register_cb(g_btns[0], BUTTON_DOUBLE_CLICK, button_auto_check_cb, NULL);
 
-    /* register iot_button callback for all the button_event */
-    for (uint8_t i = 0; i < BUTTON_EVENT_MAX; i++) {
-        if (i == BUTTON_MULTIPLE_CLICK) {
-            button_event_config_t btn_cfg;
-            btn_cfg.event = i;
-            btn_cfg.event_data.multiple_clicks.clicks = 4;
-            iot_button_register_event_cb(g_btns[0], btn_cfg, button_auto_check_cb_1, NULL);
-            iot_button_register_event_cb(g_btns[0], btn_cfg, button_auto_check_cb, NULL);
-        } else {
-            iot_button_register_cb(g_btns[0], i, button_auto_check_cb_1, NULL);
-            iot_button_register_cb(g_btns[0], i, button_auto_check_cb, NULL);
-        }
-    }
+    button_event_config_t btn_cfg = {
+        .event = BUTTON_MULTIPLE_CLICK,
+        .event_data =
+            {
+                .multiple_clicks.clicks = 4,
+            },
+    };
+    iot_button_register_event_cb(g_btns[0], btn_cfg, button_auto_check_cb_1, NULL);
+    iot_button_register_event_cb(g_btns[0], btn_cfg, button_auto_check_cb, NULL);
 
+    iot_button_register_cb(g_btns[0], BUTTON_LONG_PRESS_START, button_auto_check_cb_1, NULL);
+    iot_button_register_cb(g_btns[0], BUTTON_LONG_PRESS_START, button_auto_check_cb, NULL);
+    iot_button_register_cb(g_btns[0], BUTTON_LONG_PRESS_HOLD, button_auto_check_cb_1, NULL);
+    iot_button_register_cb(g_btns[0], BUTTON_LONG_PRESS_HOLD, button_auto_check_cb, NULL);
+    iot_button_register_cb(g_btns[0], BUTTON_LONG_PRESS_UP, button_auto_check_cb_1, NULL);
+    iot_button_register_cb(g_btns[0], BUTTON_LONG_PRESS_UP, button_auto_check_cb, NULL);
+    iot_button_register_cb(g_btns[0], BUTTON_PRESS_REPEAT_DONE, button_auto_check_cb_1, NULL);
+    iot_button_register_cb(g_btns[0], BUTTON_PRESS_REPEAT_DONE, button_auto_check_cb, NULL);
     TEST_ASSERT_EQUAL(ESP_OK, iot_button_set_param(g_btns[0], BUTTON_LONG_PRESS_TIME_MS, (void *)1500));
 
     gpio_config_t io_conf = {
@@ -576,26 +489,13 @@ TEST_CASE("gpio button auto-test", "[button][iot][auto]")
     xTaskCreate(button_auto_press_test_task, "button_auto_press_test_task", 1024 * 4, NULL, 10, NULL);
 
     TEST_ASSERT_EQUAL(pdTRUE, xSemaphoreTake(g_auto_check_pass, pdMS_TO_TICKS(6000)));
-
-    for (uint8_t i = 0; i < BUTTON_EVENT_MAX; i++) {
-        button_event_config_t btn_cfg;
-        btn_cfg.event = i;
-        if (i == BUTTON_MULTIPLE_CLICK) {
-            btn_cfg.event_data.multiple_clicks.clicks = 4;
-        } else if (i == BUTTON_LONG_PRESS_UP || i == BUTTON_LONG_PRESS_START) {
-            btn_cfg.event_data.long_press.press_time = 1500;
-        }
-        iot_button_unregister_event(g_btns[0], btn_cfg, button_auto_check_cb);
-        iot_button_unregister_event(g_btns[0], btn_cfg, button_auto_check_cb_1);
-    }
-
-    TEST_ASSERT_EQUAL(ESP_OK, iot_button_delete(g_btns[0]));
+    TEST_ASSERT_EQUAL(ESP_OK,iot_button_delete(g_btns[0]));
     vEventGroupDelete(g_check);
     vSemaphoreDelete(g_auto_check_pass);
     vTaskDelay(pdMS_TO_TICKS(100));
 }
 
-#define TOLERANCE (CONFIG_BUTTON_PERIOD_TIME_MS * 4)
+#define TOLERANCE CONFIG_BUTTON_LONG_PRESS_TOLERANCE_MS
 
 uint16_t long_press_time[5] = {2000, 2500, 3000, 3500, 4000};
 static SemaphoreHandle_t long_press_check = NULL;
@@ -609,11 +509,10 @@ static void button_auto_long_press_test_task(void *arg)
         xSemaphoreTake(long_press_check, portMAX_DELAY);
         gpio_set_level(GPIO_OUTPUT_IO_45, 0);
         status = (BUTTON_LONG_PRESS_START << 16) | long_press_time[i];
-        if (i > 0) {
+        if (i > 0)
             vTaskDelay(pdMS_TO_TICKS(long_press_time[i] - long_press_time[i - 1]));
-        } else {
+        else
             vTaskDelay(pdMS_TO_TICKS(long_press_time[i]));
-        }
     }
     vTaskDelay(pdMS_TO_TICKS(100));
     gpio_set_level(GPIO_OUTPUT_IO_45, 1);
@@ -637,10 +536,9 @@ static void button_long_press_auto_check_cb(void *arg, void *data)
     uint32_t value = (uint32_t)data;
     uint16_t event = (0xffff0000 & value) >> 16;
     uint16_t time = 0xffff & value;
-    uint32_t ticks_time = iot_button_get_ticks_time(g_btns[0]);
-    int32_t diff = ticks_time - time;
-    if (status == value && abs(diff) <= TOLERANCE) {
-        ESP_LOGI(TAG, "Auto check: button event: %s and time: %d pass", iot_button_get_event_str(state), time);
+    uint16_t ticks_time = iot_button_get_ticks_time(g_btns[0]);
+    if (status == value && abs(ticks_time - time) <= TOLERANCE) {
+        ESP_LOGI(TAG, "Auto check: button event: %s and time: %d pass", button_event_str[event], time);
 
         if (event == BUTTON_LONG_PRESS_UP && time == long_press_time[4]) {
             xSemaphoreGive(long_press_auto_check_pass);
@@ -696,11 +594,12 @@ TEST_CASE("gpio button long_press auto-test", "[button][long_press][auto]")
         iot_button_register_event_cb(g_btns[0], btn_cfg, button_long_press_auto_check_cb, (void*)data);
     }
     TEST_ASSERT_EQUAL(pdTRUE, xSemaphoreTake(long_press_auto_check_pass, pdMS_TO_TICKS(17000)));
-    TEST_ASSERT_EQUAL(ESP_OK, iot_button_delete(g_btns[0]));
+    TEST_ASSERT_EQUAL(ESP_OK,iot_button_delete(g_btns[0]));
     vSemaphoreDelete(long_press_check);
     vSemaphoreDelete(long_press_auto_check_pass);
     vTaskDelay(pdMS_TO_TICKS(100));
 }
+
 
 static void check_leak(size_t before_free, size_t after_free, const char *type)
 {
@@ -725,19 +624,6 @@ void tearDown(void)
 
 void app_main(void)
 {
-    /*
-    * ____          _    _                  _______          _
-    *|  _ \        | |  | |                |__   __|        | |
-    *| |_) | _   _ | |_ | |_  ___   _ __      | |  ___  ___ | |_
-    *|  _ < | | | || __|| __|/ _ \ | '_ \     | | / _ \/ __|| __|
-    *| |_) || |_| || |_ | |_| (_) || | | |    | ||  __/\__ \| |_
-    *|____/  \__,_| \__| \__|\___/ |_| |_|    |_| \___||___/ \__|
-    */
-    printf("  ____          _    _                  _______          _   \n");
-    printf(" |  _ \\        | |  | |                |__   __|        | |  \n");
-    printf(" | |_) | _   _ | |_ | |_  ___   _ __      | |  ___  ___ | |_ \n");
-    printf(" |  _ < | | | || __|| __|/ _ \\ | '_ \\     | | / _ \\/ __|| __|\n");
-    printf(" | |_) || |_| || |_ | |_| (_) || | | |    | ||  __/\\__ \\| |_ \n");
-    printf(" |____/  \\__,_| \\__| \\__|\\___/ |_| |_|    |_| \\___||___/ \\__|\n");
+    printf("USB STREAM TEST \n");
     unity_run_menu();
 }

@@ -1,12 +1,12 @@
 {
     "C_Cpp.intelliSenseEngine": "default",
-    "idf.espIdfPathWin": "C:/Espressif/frameworks/esp-idf-v5.4/",
-    "idf.pythonInstallPath": "C:\\Espressif\\tools\\idf-python\\3.11.2\\python.exe",
+    "idf.espIdfPathWin": "D:/espressif/idf/",
+    "idf.pythonInstallPath": "D:\\espressif\\Espressif\\tools\\idf-python\\3.11.2\\python.exe",
     "idf.openOcdConfigs": [
         "board/esp32s3-bridge.cfg"
     ],
     "idf.portWin": "COM5",
-    "idf.toolsPathWin": "C:\\Espressif",
+    "idf.toolsPathWin": "D:\\espressif\\Espressif",
     "idf.customExtraVars": {
         "IDF_TARGET": "esp32s3"
     },
@@ -89,7 +89,13 @@
         "codecvt": "cpp",
         "forward_list": "cpp",
         "ranges": "cpp",
-        "valarray": "cpp"
+        "valarray": "cpp",
+        "esp_err.h": "c",
+        "string.h": "c",
+        "i2s.h": "c",
+        "gdma.h": "c",
+        "esp_memory_utils.h": "c"
     },
-    "idf.flashType": "UART"
+    "idf.flashType": "JTAG",
+    "C_Cpp.errorSquiggles": "disabled"
 }

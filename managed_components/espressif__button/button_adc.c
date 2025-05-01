@@ -20,6 +20,7 @@
 #endif
 #include "button_adc.h"
 
+
 static const char *TAG = "adc button";
 
 #define ADC_BTN_CHECK(a, str, ret_val)                          \
@@ -32,17 +33,14 @@ static const char *TAG = "adc button";
 #define DEFAULT_VREF    1100
 #define NO_OF_SAMPLES   CONFIG_ADC_BUTTON_SAMPLE_TIMES     //Multisampling
 
-/*!< Using atten bigger than 6db by default, it will be 11db or 12db in different target */
-#define DEFAULT_ADC_ATTEN (ADC_ATTEN_DB_6 + 1)
-
 #if ESP_IDF_VERSION >= ESP_IDF_VERSION_VAL(5, 0, 0)
 #define ADC_BUTTON_WIDTH        SOC_ADC_RTC_MAX_BITWIDTH
 #define ADC1_BUTTON_CHANNEL_MAX SOC_ADC_MAX_CHANNEL_NUM
-#define ADC_BUTTON_ATTEN        DEFAULT_ADC_ATTEN
+#define ADC_BUTTON_ATTEN        ADC_ATTEN_DB_11
 #else
 #define ADC_BUTTON_WIDTH        ADC_WIDTH_MAX-1
 #define ADC1_BUTTON_CHANNEL_MAX ADC1_CHANNEL_MAX
-#define ADC_BUTTON_ATTEN        DEFAULT_ADC_ATTEN
+#define ADC_BUTTON_ATTEN        ADC_ATTEN_DB_11
 #endif
 #define ADC_BUTTON_ADC_UNIT     ADC_UNIT_1
 #define ADC_BUTTON_MAX_CHANNEL  CONFIG_ADC_BUTTON_MAX_CHANNEL
@@ -140,7 +138,7 @@ static esp_err_t adc_calibration_init(adc_unit_t unit, adc_atten_t atten, adc_ca
         ESP_LOGE(TAG, "Invalid arg or no memory");
     }
 
-    return calibrated ? ESP_OK : ESP_FAIL;
+    return calibrated?ESP_OK:ESP_FAIL;
 }
 #endif
 
@@ -305,7 +303,7 @@ uint8_t button_adc_get_key_level(void *button_index)
     }
 
     if (vol <= g_button.ch[ch_index].btns[index].max &&
-            vol >= g_button.ch[ch_index].btns[index].min) {
+            vol > g_button.ch[ch_index].btns[index].min) {
         return 1;
     }
     return 0;

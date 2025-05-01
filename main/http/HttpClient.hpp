@@ -9,11 +9,8 @@
 #include "esp_err.h"
 #include "esp_log.h"
 
-
-
 namespace app
 {
-
 
     class AppRestClient
     {
@@ -65,19 +62,16 @@ namespace app
             esp_http_client_perform(client);
             ESP_LOGI("HTTP_CLIENT", "Response: %s", buffer);
 
-
             // sSensorConfig sensor_config = nlohmann::json::parse(buffer);
-            
+
             // esp_http_client_set_url(client, data_url.c_str());
             // esp_http_client_set_method(client, HTTP_METHOD_PUT);
             // esp_http_client_set_header(client, "Content-Type", "application/json");
 
-    
             // nlohmann::json data_json = data;
             // std::string data_str = data_json.dump(); // data what? define it
             // esp_http_client_set_post_field(client, data_str.c_str(), data_str.length());
             // esp_http_client_perform(client);
-            
 
             esp_http_client_cleanup(client);
         }
@@ -94,6 +88,5 @@ namespace app
         }
         return ESP_OK;
     }
-
 
 }

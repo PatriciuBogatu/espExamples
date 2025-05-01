@@ -1,16 +1,12 @@
-/* SPDX-FileCopyrightText: 2022-2024 Espressif Systems (Shanghai) CO LTD
+/* SPDX-FileCopyrightText: 2022-2023 Espressif Systems (Shanghai) CO LTD
  *
  * SPDX-License-Identifier: Apache-2.0
  */
 
 #pragma once
 
-#include "sdkconfig.h"
-#if CONFIG_SOC_ADC_SUPPORTED
 #include "button_adc.h"
-#endif
 #include "button_gpio.h"
-#include "button_matrix.h"
 #include "esp_err.h"
 
 #ifdef __cplusplus
@@ -18,20 +14,6 @@ extern "C" {
 #endif
 
 typedef void (* button_cb_t)(void *button_handle, void *usr_data);
-
-#if CONFIG_GPIO_BUTTON_SUPPORT_POWER_SAVE
-typedef void (* button_power_save_cb_t)(void *usr_data);
-
-/**
- * @brief Structs to store power save callback info
- *
- */
-typedef struct {
-    button_power_save_cb_t enter_power_save_cb;
-    void *usr_data;
-} button_power_save_config_t;
-#endif
-
 typedef void *button_handle_t;
 
 /**
@@ -49,7 +31,6 @@ typedef enum {
     BUTTON_LONG_PRESS_START,
     BUTTON_LONG_PRESS_HOLD,
     BUTTON_LONG_PRESS_UP,
-    BUTTON_PRESS_END,
     BUTTON_EVENT_MAX,
     BUTTON_NONE_PRESS,
 } button_event_t;
@@ -74,7 +55,7 @@ typedef union {
     struct multiple_clicks_t {
         uint16_t clicks;        /**< number of clicks, to trigger the callback */
     } multiple_clicks;          /**< multiple clicks struct, for event BUTTON_MULTIPLE_CLICK */
-} button_event_data_t;
+}button_event_data_t;
 
 /**
  * @brief Button events configuration
@@ -92,13 +73,12 @@ typedef struct {
 typedef enum {
     BUTTON_TYPE_GPIO,
     BUTTON_TYPE_ADC,
-    BUTTON_TYPE_MATRIX,
     BUTTON_TYPE_CUSTOM
 } button_type_t;
 
 /**
  * @brief Button parameter
- *
+ * 
  */
 typedef enum {
     BUTTON_LONG_PRESS_TIME_MS = 0,
@@ -108,7 +88,7 @@ typedef enum {
 
 /**
  * @brief custom button configuration
- *
+ * 
  */
 typedef struct {
     uint8_t active_level;                                   /**< active level when press down */
@@ -123,16 +103,13 @@ typedef struct {
  *
  */
 typedef struct {
-    button_type_t type;                               /**< button type, The corresponding button configuration must be filled */
-    uint16_t long_press_time;                         /**< Trigger time(ms) for long press, if 0 default to BUTTON_LONG_PRESS_TIME_MS */
-    uint16_t short_press_time;                        /**< Trigger time(ms) for short press, if 0 default to BUTTON_SHORT_PRESS_TIME_MS */
+    button_type_t type;                           /**< button type, The corresponding button configuration must be filled */
+    uint16_t long_press_time;                     /**< Trigger time(ms) for long press, if 0 default to BUTTON_LONG_PRESS_TIME_MS */
+    uint16_t short_press_time;                    /**< Trigger time(ms) for short press, if 0 default to BUTTON_SHORT_PRESS_TIME_MS */
     union {
-        button_gpio_config_t gpio_button_config;      /**< gpio button configuration */
-#if CONFIG_SOC_ADC_SUPPORTED
-        button_adc_config_t adc_button_config;        /**< adc button configuration */
-#endif
-        button_matrix_config_t matrix_button_config; /**< matrix key button configuration */
-        button_custom_config_t custom_button_config;  /**< custom button configuration */
+        button_gpio_config_t gpio_button_config;  /**< gpio button configuration */
+        button_adc_config_t adc_button_config;    /**< adc button configuration */
+        button_custom_config_t custom_button_config;   /**< custom button configuration */
     }; /**< button configuration */
 } button_config_t;
 
@@ -250,33 +227,6 @@ size_t iot_button_count_event(button_handle_t btn_handle, button_event_t event);
 button_event_t iot_button_get_event(button_handle_t btn_handle);
 
 /**
- * @brief Get the string representation of a button event.
- *
- * This function returns the corresponding string for a given button event.
- * If the event value is outside the valid range, the function returns error string "event value is invalid".
- *
- * @param[in] event The button event to be converted to a string.
- *
- * @return
- *      - Pointer to the event string if the event is valid.
- *      - "invalid event" if the event value is invalid.
- */
-const char *iot_button_get_event_str(button_event_t event);
-
-/**
- * @brief Log the current button event as a string.
- *
- * This function prints the string representation of the current event associated with the button.
- *
- * @param[in] btn_handle Handle to the button object.
- *
- * @return
- *      - ESP_OK: Successfully logged the event string.
- *      - ESP_FAIL: Invalid button handle.
- */
-esp_err_t iot_button_print_event(button_handle_t btn_handle);
-
-/**
  * @brief Get button repeat times
  *
  * @param btn_handle Button handle
@@ -292,7 +242,7 @@ uint8_t iot_button_get_repeat(button_handle_t btn_handle);
  *
  * @return Actual time from press down to up (ms).
  */
-uint32_t iot_button_get_ticks_time(button_handle_t btn_handle);
+uint16_t iot_button_get_ticks_time(button_handle_t btn_handle);
 
 /**
  * @brief Get button long press hold count
@@ -305,7 +255,7 @@ uint16_t iot_button_get_long_press_hold_cnt(button_handle_t btn_handle);
 
 /**
  * @brief Dynamically change the parameters of the iot button
- *
+ * 
  * @param btn_handle Button handle
  * @param param Button parameter
  * @param value new value
@@ -314,49 +264,6 @@ uint16_t iot_button_get_long_press_hold_cnt(button_handle_t btn_handle);
  *      - ESP_ERR_INVALID_ARG   Arguments is invalid.
  */
 esp_err_t iot_button_set_param(button_handle_t btn_handle, button_param_t param, void *value);
-
-/**
- * @brief Get button key level
- *
- * @param btn_handle Button handle
- * @return
- *      - 1 if key is pressed
- *      - 0 if key is released or invalid button handle
- */
-uint8_t iot_button_get_key_level(button_handle_t btn_handle);
-
-/**
- * @brief resume button timer, if button timer is stopped. Make sure iot_button_create() is called before calling this API.
- *
- * @return
- *     - ESP_OK on success
- *     - ESP_ERR_INVALID_STATE   timer state is invalid.
- */
-esp_err_t iot_button_resume(void);
-
-/**
- * @brief stop button timer, if button timer is running. Make sure iot_button_create() is called before calling this API.
- *
- * @return
- *     - ESP_OK on success
- *     - ESP_ERR_INVALID_STATE   timer state is invalid
- */
-esp_err_t iot_button_stop(void);
-
-#if CONFIG_GPIO_BUTTON_SUPPORT_POWER_SAVE
-/**
- * @brief Register a callback function for power saving.
- *        The config->enter_power_save_cb function will be called when all keys stop working.
- *
- * @param config Button power save config
- * @return
- *     - ESP_OK                  on success
- *     - ESP_ERR_INVALID_STATE   No button registered
- *     - ESP_ERR_INVALID_ARG     Arguments is invalid
- *     - ESP_ERR_NO_MEM          Not enough memory
- */
-esp_err_t iot_button_register_power_save_cb(const button_power_save_config_t *config);
-#endif
 
 #ifdef __cplusplus
 }
