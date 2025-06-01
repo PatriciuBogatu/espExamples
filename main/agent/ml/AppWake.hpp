@@ -129,9 +129,9 @@ namespace app
           char buffer[50];
           ESP_LOGI("AppWake", "wakeword detected: len=%d\n", res->data_size);
           sprintf(buffer, "%d", count++);
-          lvgl_port_lock(0);
-          lv_label_set_text(ui_sensorLabel, buffer);
-          lvgl_port_unlock();
+          // lvgl_port_lock(0);
+          // lv_label_set_text(ui_sensorLabel, buffer);
+          // lvgl_port_unlock();
           deinit();
         }
       }
@@ -175,7 +175,7 @@ namespace app
       ESP_LOGI("AppWake", "Initing AFE done");
 
       task_flag = 1;
-      xTaskCreatePinnedToCore(feed_Task, "feed", 8 * 1024, (void *)afe_data, 5, NULL, 0);
+      xTaskCreatePinnedToCore(feed_Task, "feed", 8 * 1024, (void *)afe_data, 5, NULL, 1);
       xTaskCreatePinnedToCore(detect_Task, "detect", 4 * 1024, (void *)afe_data, 5, NULL, 1);
       ESP_LOGI("AppWake", "Wake word detection is active");
       active = true;

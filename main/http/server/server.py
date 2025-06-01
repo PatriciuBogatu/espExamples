@@ -18,26 +18,21 @@ def allowed_file(filename):
 
 @app.route('/upload', methods=['POST'])
 def uploadAudioFile():
-    if 'audio' not in request.files:
-        return make_response({'error': 'No audio file part'}, 400)
-    
-    file = request.files['audio']
-    
-    if file.filename == '':
-        return make_response({'error': 'No selected file'}, 400)
-    
-    if not (file and allowed_file(file.filename)):
-        return make_response({'error': 'Invalid file type'}, 400)
+    # Check if the request has data (raw upload)
+    if not request.data:
+        return make_response({'error': 'No file uploaded'}, 400)
     
     try:
-        filename = secure_filename(file.filename)
+        # Generate a unique filename (e.g., timestamp)
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        unique_filename = f"{timestamp}_{filename}"
+        unique_filename = f"recording_{timestamp}.wav"
         
         os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
-        
         save_path = os.path.join(app.config['UPLOAD_FOLDER'], unique_filename)
-        file.save(save_path)
+        
+        # Save raw request data to file
+        with open(save_path, 'wb') as f:
+            f.write(request.data)  # Raw bytes
         
         return make_response({
             'status': 'success',
@@ -50,4 +45,4 @@ def uploadAudioFile():
         return make_response({'error': 'File upload failed'}, 500)
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5000)
+    app.run(host="0.0.0.0", debug=True, port=5000)

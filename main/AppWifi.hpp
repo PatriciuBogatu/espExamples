@@ -3,7 +3,7 @@
 #include <functional>
 #include <string>
 #include <cstring>
-
+#include "esp_log.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "esp_wifi.h"
@@ -40,6 +40,7 @@ namespace app
             // m_connected = conn;
             // m_disconnected = disc;
 
+            ESP_LOGI("AppWifi", "Initing wifi!");
             esp_err_t err = nvs_flash_init();
             if (err == ESP_ERR_NVS_NO_FREE_PAGES || err == ESP_ERR_NVS_NEW_VERSION_FOUND)
             {
@@ -58,6 +59,7 @@ namespace app
 
         void connect(void)
         {
+            ESP_LOGI("AppWifi", "Connecting to wifi");
             const char *ssid = "victory";
             const char *password = "or death";
 
@@ -70,10 +72,12 @@ namespace app
             esp_wifi_set_mode(WIFI_MODE_STA);
             esp_wifi_set_config(WIFI_IF_STA, &wifi_config);
             esp_wifi_start();
+            ESP_LOGI("AppWifi", "WiFi started in station mode");
         }
 
         // void connect(void)
         // {
+        //     ESP_LOGI("AppWifi", "Connecting wifi!");
         //     wifi_prov_mgr_config_t config = {
         //         .scheme = wifi_prov_scheme_softap,
         //         .scheme_event_handler = WIFI_PROV_EVENT_HANDLER_NONE,

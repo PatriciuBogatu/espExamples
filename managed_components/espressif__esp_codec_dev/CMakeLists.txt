@@ -66,7 +66,7 @@ if (CONFIG_CODEC_ZL38063_SUPPORT)
     device/zl38063/example_apps/tw_spi_access.c)
 endif()
 
-idf_component_register(SRCS "${COMPONENT_SRCS}"
+idf_component_register(SRCS "esp_codec_dev.c" "${COMPONENT_SRCS}"
                        INCLUDE_DIRS "${COMPONENT_ADD_INCLUDEDIRS}"
                        PRIV_INCLUDE_DIRS "${COMPONENT_PRIV_INCLUDEDIRS}"
                        REQUIRES driver

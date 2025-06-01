@@ -44,8 +44,8 @@
  *  ESP-BOX pinout
  **************************************************************************************************/
 /* I2C */
-#define BSP_I2C_SCL (GPIO_NUM_10)
-#define BSP_I2C_SDA (GPIO_NUM_11)
+#define BSP_I2C_SCL (GPIO_NUM_18)
+#define BSP_I2C_SDA (GPIO_NUM_8)
 
 /* Audio */
 #define BSP_I2S_SCLK (GPIO_NUM_17)

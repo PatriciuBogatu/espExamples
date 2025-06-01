@@ -67,8 +67,8 @@ esp_err_t bsp_i2c_init_another(i2c_port_t i2c_num, uint32_t clk_speed)
     ESP_LOGI("BSP AGENT", "Initializing I2C with SCL %d and SDA %d", GPIO_I2C_SCL, GPIO_I2C_SDA);
     i2c_config_t i2c_cfg = {
         .mode = I2C_MODE_MASTER,
-        .scl_io_num = GPIO_I2C_SCL,
-        .sda_io_num = GPIO_I2C_SDA,
+        .scl_io_num = 10,
+        .sda_io_num = 11,
         .scl_pullup_en = GPIO_PULLUP_ENABLE,
         .sda_pullup_en = GPIO_PULLUP_ENABLE,
         .master.clk_speed = clk_speed,
@@ -507,6 +507,7 @@ char *bsp_get_input_format(void)
 esp_err_t bsp_board_init(uint32_t sample_rate, int channel_format, int bits_per_chan)
 {
     /*!< Initialize I2C bus, used for audio codec*/
+    ESP_LOGI("BSP_BOARD_ANOTHER", "Setting i2c_another");
     bsp_i2c_init_another(I2C_NUM, I2C_CLK);
 
     s_play_sample_rate = sample_rate;
@@ -525,8 +526,11 @@ esp_err_t bsp_board_init(uint32_t sample_rate, int channel_format, int bits_per_
     }
     s_bits_per_chan = bits_per_chan;
 
+    ESP_LOGI("BSP_BOARD_ANOTHER", "Setting i2s_another");
     bsp_i2s_init(I2S_NUM_1, 16000, 2, 32);
+    vTaskDelay(pdMS_TO_TICKS(500));
     // Because record and play use the same i2s.
+    ESP_LOGI("BSP_BOARD_ANOTHER", "Setting codec after 500ms wait");
     bsp_codec_init(16000, 16000, 2, 32);
     /* Initialize PA */
     // gpio_config_t  io_conf;

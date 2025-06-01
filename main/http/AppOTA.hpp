@@ -24,7 +24,6 @@ namespace app
     class AppOtaClient
     {
     private:
-
         // job to poll the server for any new updates and install if required
         TaskHandle_t m_ota_task;
         // the variable will hold the rtos task

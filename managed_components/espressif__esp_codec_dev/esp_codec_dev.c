@@ -223,6 +223,7 @@ int esp_codec_dev_read(esp_codec_dev_handle_t handle, void *data, int len)
     }
     const audio_codec_data_if_t *data_if = dev->data_if;
     if (data_if->read) {
+        ESP_LOGI("CODEC", "READING");
         return data_if->read(data_if, (uint8_t *) data, len);
     }
     return ESP_CODEC_DEV_NOT_SUPPORT;

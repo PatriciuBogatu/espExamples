@@ -17,6 +17,7 @@ namespace app
       appRecorder = new AppRecorder();
       appWake = new AppWake();
 
+      
       appWake->init();
 
       while (true)
@@ -31,11 +32,12 @@ namespace app
         else if (!appWake->isActive() && !AppRecorder::checkIsRecording())
         {
           ESP_LOGI("AppAgent", "Starting recording...");
-          appRecorder->init_i2s();
           appRecorder->start_recording();
         }
         vTaskDelay(pdMS_TO_TICKS(10));
       }
+
+      vTaskSuspend(NULL);
     }
 
     void launchApp()

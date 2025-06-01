@@ -11,13 +11,14 @@
 #include "sensor/SensorApp.hpp"
 #include "AppWifi.hpp"
 #include "agent/AppAgent.hpp"
-#include "esp_efuse.h"
+#include "esp_heap_caps.h"
 // #include "AppMqtt.hpp"
 // #include "http/HttpServer.hpp"
 // #include "http/HttpClient.hpp"
 // #include "http/AppOTA.hpp"
 // #include "http/rainmaker/ota/AppNode.hpp"
 // #include "http/rainmaker/ota/AppDriver.hpp"
+// Audio configuration
 
 namespace
 {
@@ -35,22 +36,30 @@ namespace
 
 extern "C" void app_main(void)
 {
-    // disable_jtag();
-    bsp_spiffs_mount();
+// Initialize microphone codec
+#if CONFIG_SPIRAM_SUPPORT
+ESP_LOGI("MEM", "INTO MAIN");
+    ESP_LOGI("MEM", "SPIRAM detected, free: %zu", 
+            heap_caps_get_free_size(MALLOC_CAP_SPIRAM));
+#else
+    ESP_LOGE("MEM", "SPIRAM NOT CONFIGURED!");
+#endif
+bsp_spiffs_mount();
 
-    /* Initialize I2C (for touch and audio) */
-    bsp_i2c_init();
+
+
+    // bsp_i2c_init();
 
     /* Initialize display and LVGL */
-    bsp_display_start();
+    // bsp_display_start();
 
     /* Set default display brightness */
-    bsp_display_brightness_set(50);
+    // bsp_display_brightness_set(50);
 
     // 4. Create/load your SquareLine GUI within a lock
-    lvgl_port_lock(0);
-    ui_init(); // This is from your SquareLine export
-    lvgl_port_unlock();
+    // lvgl_port_lock(0);
+    // ui_init(); // This is from your SquareLine export
+    // lvgl_port_unlock();
 
     // 5. Done! The esp_lvgl_port takes care of the LVGL task loop in the background.
 
@@ -103,12 +112,23 @@ extern "C" void app_main(void)
     // app_mqtt.init(mqtt_cb);
     // app_rest_client.init();
     // app_ota_client.init();
-    vTaskDelay(pdMS_TO_TICKS(7000));
+    // vTaskDelay(pdMS_TO_TICKS(7000));
+    
+    // reset init
+    // halt
+    // flash erase_address 0x0 0x1000000
+    // resume
+    // exit
+    app_wifi.init(); // wifi_connected, wifi_disconnected
+    app_wifi.connect();
+    vTaskDelay(pdMS_TO_TICKS(10000));
     ESP_LOGI("MAIN", "Launching Agent");
     app_agent.launchApp();
-    vTaskDelay(pdMS_TO_TICKS(7000));
-    // app_wifi.init(); // wifi_connected, wifi_disconnected
-    // app_wifi.connect();
+    
+    
+    
+    
+    
     // app_http_server.start(); // no need to init - this is esp's own resource
 
     // Initializez the underlying flash/NVS access and Wifi

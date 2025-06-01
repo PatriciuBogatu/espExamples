@@ -102,8 +102,9 @@ esp_err_t bsp_i2c_init(void)
         .scl_pullup_en = GPIO_PULLUP_ENABLE,
         .master.clk_speed = CONFIG_BSP_I2C_CLK_SPEED_HZ};
     BSP_ERROR_CHECK_RETURN_ERR(i2c_param_config(BSP_I2C_NUM, &i2c_conf));
+    ESP_LOGI("BSP GENERIC", "Installing driver");
     BSP_ERROR_CHECK_RETURN_ERR(i2c_driver_install(BSP_I2C_NUM, i2c_conf.mode, 0, 0, 0));
-
+    ESP_LOGI("BSP GENERIC", "Installing driver done");
     i2c_initialized = true;
 
     return ESP_OK;
@@ -261,9 +262,12 @@ esp_codec_dev_handle_t bsp_audio_codec_microphone_init(void)
     if (i2s_data_if == NULL)
     {
         /* Initilize I2C */
+        ESP_LOGI("ESP_BOX_3_BSP", "Initializing i2c");
         BSP_ERROR_CHECK_RETURN_ERR(bsp_i2c_init());
         /* Configure I2S peripheral and Power Amplifier */
+        ESP_LOGI("ESP_BOX_3_BSP", "Initing audio");
         BSP_ERROR_CHECK_RETURN_ERR(bsp_audio_init(NULL));
+        ESP_LOGI("ESP_BOX_3_BSP", "Getting codec itf");
         i2s_data_if = bsp_audio_get_codec_itf();
     }
     assert(i2s_data_if);

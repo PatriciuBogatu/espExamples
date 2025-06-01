@@ -24,7 +24,7 @@ idf_component_register(
       "agent/voice/AppRecorder.hpp"
       "agent/aws/BedrockClient.hpp"
       "agent/AppAgent.hpp"
-    REQUIRES esp_wifi wifi_provisioning nvs_flash mqtt esp_http_server esp_http_client app_update esp_https_ota hardware_driver efuse
+    REQUIRES esp_wifi wifi_provisioning nvs_flash mqtt esp_http_server esp_http_client app_update esp_https_ota hardware_driver
     PRIV_REQUIRES spi_flash
     INCLUDE_DIRS
        "." "ui"
